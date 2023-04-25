@@ -11,7 +11,8 @@
 
 typedef struct bucket_node {
     char* key;
-    void * value;
+    size_t len;
+    void* value;
     struct bucket_node* next;
 } bucket_node;
 typedef struct hash_map {
@@ -22,5 +23,6 @@ typedef struct hash_map {
 hash_map *new_hash_map();
 void* get(hash_map*, char*);
 void put(hash_map*, char*, void*);
+void free_map(hash_map*);
 
 #endif // HTTP_SERVER_MAP_H

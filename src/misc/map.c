@@ -1,11 +1,10 @@
 #include "map.h"
-
 static unsigned hash(char* str, int mask) {
     unsigned result = 0;
     size_t len = strlen(str);
     for (size_t i = 0; i < len; ++i) {
-         result += str[i] + result + (result << 6) + (result >> 31);
-         result ^= result >> 6;
+        result += str[i] + result + (result << 6) + (result >> 31);
+        result ^= result >> 6;
     }
     result += result << 3;
     result ^= result >> 6;
@@ -22,11 +21,12 @@ static bucket_node* new_node(char* key, void* value) {
     node->key = copy_key;
     node->value = value;
     node->next = NULL;
+    node->len = strlen(key);
     return node;
 }
 static bucket_node* bucket_contains_node(bucket_node* bucket, bucket_node* single) {
     for (;bucket;bucket = bucket->next) {
-        if (strlen(bucket->key) == strlen(single->key) && strcmp(bucket->key, single->key) == 0) {
+        if (bucket->len == single->len && strcmp(bucket->key, single->key) == 0) {
             return bucket;
         }
     }
@@ -54,13 +54,13 @@ static void resize_map(hash_map* map) {
 }
 void* get(hash_map *map, char *key) {
     unsigned index = hash(key, map->capacity);
-    bucket_node *bucket = map->buckets[index];
-    for (; bucket; bucket = bucket->next) {
-        if (strlen(key) == strlen(bucket->key) && !strcmp(key, bucket->key)) {
-            return bucket->value;
-        }
+    bucket_node *in_bucket, node;
+    node.key = key; // manually create a node on the stack (!)
+    node.len = strlen(node.key);
+    if ((in_bucket = bucket_contains_node(map->buckets[index], &node))) {
+        return in_bucket->value;
     }
-    return 0;
+    return NULL;
 }
 void put(hash_map* map, char* key, void* value) {
     unsigned index = hash(key, map->capacity);
