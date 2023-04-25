@@ -4,6 +4,7 @@ static void shutdown_server(int);
 static int response(int, __attribute__((unused)) HttpStatus, char*);
 static HttpResponse* construct_response(HttpStatus);
 static inline size_t count_bytes(char*);
+static void resize(size_t* restrict, const size_t* restrict);
 static int sfd;
 
 void create_socket() {
@@ -25,24 +26,34 @@ void create_socket() {
     printf("Listening on %d\n", PORT);
     signal(SIGINT, shutdown_server);
     while (true) {
-        uchar req_buff[BUFFSZ] = {0};
+        size_t size = BUFFSZ;
+        uchar *request = calloc(size, sizeof(uchar)), req_buff[BUFFSZ] = {0};
         int connfd;
         if ((connfd = accept(sfd, (SA*) &address, &len)) < 0) {
             ELOG("Read error\n");
             continue;
         }
-        long n, r = 0;
+        size_t n, r = 0;
         //todo: parse http request properly
         while ((n = read(connfd, req_buff, BUFFSZ)) > 0) {
             r += n;
-            if (req_buff[r] == '\0') break;
+            if (r >= size) { // For laaaarge requests
+                resize(&size, &r);
+                request = realloc(request, sizeof(uchar) * size);
+                if (!request) {
+                    PANIC("Malloc error");
+                }
+            }
+            snprintf((char *) request, size, "%s%s", request, req_buff);
+            if (request[r - 2] == '\r' && request[r - 1] == '\n') break;
         }
-        printf("%s", req_buff);
+        printf("%s", request);
         if (response(connfd, OK, "../pages/hello_world.html") == -1) {
             ELOG("Page not found\n");
             continue;
         }
         close(connfd);
+        free(request);
     }
 }
 static void shutdown_server(int) {
@@ -103,4 +114,9 @@ static inline size_t count_bytes(char* file_name) {
         return -1;
     }
     return s.st_size;
+}
+static void resize(size_t *restrict a, const size_t *restrict b) {
+    while (*a <= *b) {
+        (*a) *= 2;
+    }
 }
