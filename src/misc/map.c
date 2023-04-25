@@ -32,45 +32,45 @@ static bucket_node* bucket_contains_node(bucket_node* bucket, bucket_node* singl
     }
     return NULL;
 }
-static void resize_map(hash_map* map) {
-    if (map->capacity >= MAX_CAPACITY) return;
-    bucket_node **new_buckets = calloc(map->capacity * 2,sizeof(bucket_node));
+static void resize_map(hash_map* self) {
+    if (self->capacity >= MAX_CAPACITY) return;
+    bucket_node **new_buckets = calloc(self->capacity * 2,sizeof(bucket_node));
     if (!new_buckets) {
         PANIC("MALLOC ERROR\n");
     }
-    for (int i = 0; i < map->capacity; ++i) {
+    for (int i = 0; i < self->capacity; ++i) {
         bucket_node* next = NULL;
-        for (bucket_node* bucket = map->buckets[i]; bucket; bucket = next) {
+        for (bucket_node* bucket = self->buckets[i]; bucket; bucket = next) {
             next = bucket->next;
-            unsigned new_index = hash(bucket->key, map->capacity * 2);
+            unsigned new_index = hash(bucket->key, self->capacity * 2);
             bucket->next = new_buckets[new_index];
             new_buckets[new_index] = bucket;
         }
     }
-    map->capacity *= 2;
-    free(map->buckets);
-    map->buckets = new_buckets;
+    self->capacity *= 2;
+    free(self->buckets);
+    self->buckets = new_buckets;
 }
-void* get(hash_map *map, char *key) {
-    unsigned index = hash(key, map->capacity);
+void* get(hash_map *self, char *key) {
+    unsigned index = hash(key, self->capacity);
     bucket_node *in_bucket, node;
     node.key = key; // manually create a node on the stack (!)
     node.len = strlen(node.key);
-    if ((in_bucket = bucket_contains_node(map->buckets[index], &node))) {
+    if ((in_bucket = bucket_contains_node(self->buckets[index], &node))) {
         return in_bucket->value;
     }
     return NULL;
 }
-void put(hash_map* map, char* key, void* value) {
-    unsigned index = hash(key, map->capacity);
+void put(hash_map* self, char* key, void* value) {
+    unsigned index = hash(key, self->capacity);
     bucket_node* node = new_node(key, value), *may_be_in_map = NULL;
-    if (!(may_be_in_map = bucket_contains_node(map->buckets[index], node))) { // if map doesn't contain element with `key`
-        if (++map->size > (double) map->capacity * LOAD_FACTOR) {
-            resize_map(map);
-            index = hash(key, map->capacity);
+    if (!(may_be_in_map = bucket_contains_node(self->buckets[index], node))) { // if map doesn't contain element with `key`
+        if (++self->size > (double) self->capacity * LOAD_FACTOR) {
+            resize_map(self);
+            index = hash(key, self->capacity);
         }
-        node->next = map->buckets[index];
-        map->buckets[index] = node;
+        node->next = self->buckets[index];
+        self->buckets[index] = node;
         return;
     }
     free(node);
@@ -84,21 +84,23 @@ hash_map* new_hash_map() {
     map->capacity = DEFAULT_CAPACITY;
     map->size = 0;
     map->buckets = calloc(map->capacity, sizeof(bucket_node));
+    map->put = put;
+    map->get = get;
     if (!map->buckets) {
         PANIC("MALLOC ERROR\n");
     }
     return map;
 }
-void free_map(hash_map* map) {
-    for (size_t i = 0; i < map->capacity; ++i) {
+void free_map(hash_map* self) {
+    for (size_t i = 0; i < self->capacity; ++i) {
         bucket_node* next = NULL;
-        for (bucket_node* bucket = map->buckets[i]; bucket; bucket = next) {
+        for (bucket_node* bucket = self->buckets[i]; bucket; bucket = next) {
             next = bucket->next;
             free(bucket->key);
             free(bucket);
         }
     }
-    free(map->buckets);
-    free(map);
-    map = NULL;
+    free(self->buckets);
+    free(self);
+    self = NULL;
 }

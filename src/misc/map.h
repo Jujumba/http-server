@@ -16,9 +16,12 @@ typedef struct bucket_node {
     void* value;
     struct bucket_node* next;
 } bucket_node;
+/* Unordered map */
 typedef struct hash_map {
     size_t size, capacity;
     bucket_node **buckets;
+    void (*put)(struct hash_map*, char*, void*);
+    void* (*get)(struct hash_map*, char*);
 } hash_map;
 
 hash_map *new_hash_map();
