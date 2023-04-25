@@ -1,4 +1,5 @@
 #include "map.h"
+
 static unsigned hash(char* str, int mask) {
     unsigned result = 0;
     size_t len = strlen(str);
@@ -13,8 +14,7 @@ static unsigned hash(char* str, int mask) {
 static bucket_node* new_node(char* key, void* value) {
     bucket_node* node = malloc(sizeof(bucket_node));
     if (!node) {
-        fprintf(stderr, "MALLOC ERROR\n");
-        exit(1);
+        PANIC("MALLOC ERROR\n");
     }
     char* copy_key = malloc(strlen(key) + 1);
     strcpy(copy_key, key);
@@ -36,8 +36,7 @@ static void resize_map(hash_map* map) {
     if (map->capacity >= MAX_CAPACITY) return;
     bucket_node **new_buckets = calloc(map->capacity * 2,sizeof(bucket_node));
     if (!new_buckets) {
-        fprintf(stderr, "MALLOC ERROR\n");
-        exit(1);
+        PANIC("MALLOC ERROR\n");
     }
     for (int i = 0; i < map->capacity; ++i) {
         bucket_node* next = NULL;
@@ -80,14 +79,14 @@ void put(hash_map* map, char* key, void* value) {
 hash_map* new_hash_map() {
     hash_map* map = calloc(1, sizeof(hash_map));
     if (!map) {
-        error:
-        fprintf(stderr, "MALLOC ERROR\n");
-        exit(1);
+        PANIC("MALLOC ERROR\n");
     }
     map->capacity = DEFAULT_CAPACITY;
     map->size = 0;
     map->buckets = calloc(map->capacity, sizeof(bucket_node));
-    if (!map->buckets) goto error;
+    if (!map->buckets) {
+        PANIC("MALLOC ERROR\n");
+    }
     return map;
 }
 void free_map(hash_map* map) {
