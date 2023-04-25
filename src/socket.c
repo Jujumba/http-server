@@ -20,7 +20,7 @@ void create_socket() {
     address.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(sfd, (SA *) &address, len) < 0 || listen(sfd, BACKLOG) < 0) {
-        PANIC("Binding || Listening error\n");
+        PANIC("Binding or listening error. Start me later.\n");
     }
 
     printf("Listening on %d\n", PORT);
