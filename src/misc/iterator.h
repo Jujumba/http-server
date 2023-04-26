@@ -7,7 +7,7 @@
 
 typedef struct iterator {
     size_t index; /* Not intended to be edited manually  */
-    hash_map *map;
+    hash_map *const map;
     bucket_node *node;
     const bucket_node* (*next)(struct iterator*);
 } iterator;
