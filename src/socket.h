@@ -14,7 +14,9 @@
 #include <stdbool.h>
 #include <signal.h>
 #include <sys/stat.h>
+#include "misc/map.h"
 #include "misc/panic.h"
+#include "misc/strings.h"
 
 typedef unsigned char       uchar;
 typedef struct sockaddr     SA;

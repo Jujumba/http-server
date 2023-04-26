@@ -2,9 +2,8 @@
 
 static void shutdown_server(int);
 static int response(int, __attribute__((unused)) HttpStatus, char*);
-static HttpResponse* construct_response(HttpStatus);
+static HttpResponse* construct_response(HttpStatus, hash_map*);
 static inline size_t count_bytes(char*);
-static void resize(size_t* restrict, const size_t* restrict);
 static int sfd;
 
 void create_socket() {
@@ -37,18 +36,11 @@ void create_socket() {
         //todo: parse http request properly
         while ((n = read(connfd, req_buff, BUFFSZ)) > 0) {
             r += n;
-            if (r >= size) { // For laaaarge requests
-                resize(&size, &r);
-                request = realloc(request, sizeof(uchar) * size);
-                if (!request) {
-                    PANIC("Malloc error");
-                }
-            }
-            snprintf((char *) request, size, "%s%s", request, req_buff);
+            concat_strings((char *) request, (char *) req_buff, &size, &r);
             if (request[r - 2] == '\r' && request[r - 1] == '\n') break;
         }
         printf("%s", request);
-        if (response(connfd, OK, "../pages/hello_world.html") == -1) {
+        if (response(connfd, OK, "../pages/package.json") == -1) {
             ELOG("Page not found\n");
             continue;
         }
@@ -62,7 +54,7 @@ static void shutdown_server(int) {
     exit(0);
 }
 static int response(int connfd, HttpStatus status, char *file_name) {
-    HttpResponse *response = construct_response(status);
+    HttpResponse *response = construct_response(status, NULL);
     FILE* file_stream = fopen(file_name, "r");
     if (file_stream == NULL) {
         return -1;
@@ -83,7 +75,7 @@ static int response(int connfd, HttpStatus status, char *file_name) {
 
     return 0;
 }
-static HttpResponse* construct_response(HttpStatus status) {
+static HttpResponse* construct_response(HttpStatus status, hash_map* headers) {
     HttpResponse *response = malloc(sizeof(HttpResponse));
     response->status = status;
     char* status_msg;
@@ -103,7 +95,7 @@ static HttpResponse* construct_response(HttpStatus status) {
     }
     // todo: hard-coded
     response->header = malloc(sizeof(uchar) * 80);
-    snprintf((char *) response->header, 80, "HTTP/1.1 %d %s\nConnection: Keep-Alive\nContent-Type: text/html\r\n\r\n", status, status_msg);
+    snprintf((char *) response->header, 80, "HTTP/1.1 %d %s\nConnection: Keep-Alive\nContent-Type: application/json\r\n\r\n", status, status_msg);
     response->header_len = strlen((char *) response->header);
     response->header[response->header_len] = '\0';
     return response;
@@ -114,9 +106,4 @@ static inline size_t count_bytes(char* file_name) {
         return -1;
     }
     return s.st_size;
-}
-static void resize(size_t *restrict a, const size_t *restrict b) {
-    while (*a <= *b) {
-        (*a) *= 2;
-    }
 }
