@@ -86,6 +86,7 @@ hash_map* new_hash_map() {
     map->buckets = calloc(map->capacity, sizeof(bucket_node));
     map->put = put;
     map->get = get;
+    map->free_map = free_map;
     if (!map->buckets) {
         PANIC("MALLOC ERROR\n");
     }

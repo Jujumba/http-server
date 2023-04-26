@@ -20,13 +20,14 @@ typedef struct bucket_node {
 typedef struct hash_map {
     size_t size, capacity;
     bucket_node **buckets;
-    void (*put)(struct hash_map*, char*, void*);
-    void* (*get)(struct hash_map*, char*);
+    void (*put)(struct hash_map* self, char*, void*);
+    void* (*get)(struct hash_map* self, char*);
+    void (*free_map)(struct hash_map* self);
 } hash_map;
 
 hash_map *new_hash_map();
-void* get(hash_map*, char*);
-void put(hash_map*, char*, void*);
-void free_map(hash_map*);
+void* get(hash_map* self, char*);
+void put(hash_map* self, char*, void*);
+void free_map(hash_map* self);
 
 #endif // HTTP_SERVER_MAP_H
