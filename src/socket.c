@@ -2,7 +2,6 @@
 
 static void shutdown_server(int);
 static int response(int, __attribute__((unused)) HttpStatus, char*);
-static HttpResponse* construct_response(HttpStatus, hash_map*);
 static inline size_t count_bytes(char*);
 static int sfd;
 
@@ -74,31 +73,6 @@ static int response(int connfd, HttpStatus status, char *file_name) {
     free(response);
 
     return 0;
-}
-static HttpResponse* construct_response(HttpStatus status, hash_map* headers) {
-    HttpResponse *response = malloc(sizeof(HttpResponse));
-    response->status = status;
-    char* status_msg;
-    switch (status) {
-        case 200:
-            status_msg = "OK";
-            break;
-        case 400:
-            status_msg = "Bad Request";
-            break;
-        case 404:
-            status_msg = "Not Found";
-            break;
-        case 418:
-            status_msg = "I'm a teapot";
-            break;
-    }
-    // todo: hard-coded
-    response->header = malloc(sizeof(uchar) * 80);
-    snprintf((char *) response->header, 80, "HTTP/1.1 %d %s\nConnection: Keep-Alive\nContent-Type: application/json\r\n\r\n", status, status_msg);
-    response->header_len = strlen((char *) response->header);
-    response->header[response->header_len] = '\0';
-    return response;
 }
 static inline size_t count_bytes(char* file_name) {
     struct stat s;

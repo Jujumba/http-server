@@ -17,22 +17,11 @@
 #include "misc/map.h"
 #include "misc/panic.h"
 #include "misc/strings.h"
+#include "http.h"
 
-typedef unsigned char       uchar;
 typedef struct sockaddr     SA;
 typedef struct sockaddr_in  SAI;
 
-typedef enum {
-    OK = 200,
-    BAD_REQUEST = 400,
-    NOT_FOUND = 404,
-    I_M_A_TEAPOT = 418, /* <(^.^)> */
-} HttpStatus;
-typedef struct {
-    HttpStatus status;
-    unsigned char *header, *body;
-    size_t header_len, body_len;
-} HttpResponse;
 void create_socket();
 
 #endif // SOCKET_H
