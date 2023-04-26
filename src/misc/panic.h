@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#define ELOG(MSG,...)(fprintf(stderr, (MSG), ##__VA_ARGS__))
+#define ELOG(FORMAT,...)(fprintf(stderr, (FORMAT), ##__VA_ARGS__))
 #define PANIC(FORMAT,...) do { \
     ELOG((FORMAT), ##__VA_ARGS__); \
     exit(EXIT_FAILURE); \
