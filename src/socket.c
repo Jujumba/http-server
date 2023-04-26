@@ -1,9 +1,9 @@
 #include "socket.h"
 
 static void shutdown_server(int);
-static int response(int, __attribute__((unused)) HttpStatus, char*);
-static inline size_t count_bytes(char*);
+static int response(int, __attribute__((unused)) HttpStatus,hash_map*,char*);
 static int sfd;
+static hash_map* map_headers;
 void create_socket() {
     printf("Creating a socket...\n");
     if ((sfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -22,6 +22,9 @@ void create_socket() {
 
     printf("Listening on %d\n", PORT);
     signal(SIGINT, shutdown_server);
+    map_headers = new_hash_map();
+    map_headers->put(map_headers, "Content-Type", "application/json");
+    map_headers->put(map_headers, "Connection", "Keep-Alive");
     while (true) {
         char req_buff[BUFFSZ] = {0};
         int connfd;
@@ -33,47 +36,27 @@ void create_socket() {
         //todo: parse http request properly
         while ((n = read(connfd, req_buff, BUFFSZ)) > 0) {
             r += n;
-            if (req_buff[r - 1] == '\n' || req_buff[r] == '\n') break;
+            if (req_buff[r - 1] == '\n') break;
         }
-        printf("%s", req_buff);
-        if (response(connfd, OK, "../pages/package.json") == -1) {
-            ELOG("Page not found\n");
-            continue;
-        }
+        response(connfd, OK, map_headers, "../pages/package.json");
         close(connfd);
     }
 }
 static void shutdown_server(int) {
     ELOG("\nTerminating... I'm sorry.\n");
+    free_map(map_headers);
     close(sfd);
     exit(0);
 }
-static int response(int connfd, HttpStatus status, char *file_name) {
-    HttpResponse *response = construct_response(status, NULL);
-    FILE* file_stream = fopen(file_name, "r");
-    if (file_stream == NULL) {
-        return -1;
-    }
+static int response(int connfd, HttpStatus status, hash_map* headers,char *file_name) {
+    HttpResponse *response = construct_response(status, headers, file_name);
 
-    response->body_len = count_bytes(file_name);
-    response->body = malloc(sizeof(uchar) * response->body_len + 1);
-
-    fread(response->body, response->body_len, sizeof(uchar), file_stream);
-    response->body[response->body_len] = '\0';
     write(connfd, response->header, response->header_len);
     write(connfd, response->body, response->body_len);
 
-    fclose(file_stream);
     free(response->body);
-    free(response->header);
+     free(response->header);
     free(response);
 
     return 0;
-}
-static inline size_t count_bytes(char* file_name) {
-    struct stat s;
-    if (stat(file_name, &s) == -1) {
-        return -1;
-    }
-    return s.st_size;
 }

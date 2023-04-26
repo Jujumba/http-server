@@ -2,6 +2,8 @@
 #define HTTP_SERVER_HTTP_H
 
 #include <stddef.h>
+#include <sys/stat.h>
+#include "misc/iterator.h"
 #include "misc/map.h"
 
 typedef unsigned char uchar;
@@ -13,11 +15,11 @@ typedef enum {
 } HttpStatus;
 typedef struct {
     HttpStatus status;
-    unsigned char *header, *body;
+    char *header, *body;
     size_t header_len, body_len;
 } HttpResponse;
 
-HttpResponse* construct_response(HttpStatus status, hash_map* headers);
+HttpResponse* construct_response(HttpStatus status, hash_map* headers, char* file_name);
 char* match_status_code(HttpStatus status);
 
 #endif //HTTP_SERVER_HTTP_H
