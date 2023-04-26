@@ -4,7 +4,6 @@ static void shutdown_server(int);
 static int response(int, __attribute__((unused)) HttpStatus, char*);
 static inline size_t count_bytes(char*);
 static int sfd;
-
 void create_socket() {
     printf("Creating a socket...\n");
     if ((sfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -24,8 +23,7 @@ void create_socket() {
     printf("Listening on %d\n", PORT);
     signal(SIGINT, shutdown_server);
     while (true) {
-        size_t size = BUFFSZ;
-        uchar *request = calloc(size, sizeof(uchar)), req_buff[BUFFSZ] = {0};
+        char req_buff[BUFFSZ] = {0};
         int connfd;
         if ((connfd = accept(sfd, (SA*) &address, &len)) < 0) {
             ELOG("Read error\n");
@@ -35,16 +33,14 @@ void create_socket() {
         //todo: parse http request properly
         while ((n = read(connfd, req_buff, BUFFSZ)) > 0) {
             r += n;
-            concat_strings((char *) request, (char *) req_buff, &size, &r);
-            if (request[r - 2] == '\r' && request[r - 1] == '\n') break;
+            if (req_buff[r - 1] == '\n' || req_buff[r] == '\n') break;
         }
-        printf("%s", request);
+        printf("%s", req_buff);
         if (response(connfd, OK, "../pages/package.json") == -1) {
             ELOG("Page not found\n");
             continue;
         }
         close(connfd);
-        free(request);
     }
 }
 static void shutdown_server(int) {
