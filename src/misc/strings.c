@@ -8,9 +8,11 @@ static void resize(size_t *restrict a, const size_t *restrict b) {
 void concat_strings(char *restrict dst, char *restrict src, size_t *restrict dst_len, char* format) {
     size_t src_len = strlen(src);
     resize(dst_len, &src_len);
-    dst = realloc(dst, *dst_len);
-    if (!dst) {
+    char* buff;
+    buff = realloc(dst, *dst_len);
+    if (!buff) {
         PANIC("Malloc error\n");
     }
-    snprintf(src, src_len, format, src, dst);
+    dst = buff;
+    sprintf(dst, format, dst, src);
 }
