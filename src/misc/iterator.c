@@ -5,7 +5,7 @@ iterator* new_iterator(hash_map* map) {
     if (!self) {
         PANIC("Malloc error\n");
     }
-    *(hash_map *) self->map = *map;
+    self->map = map;
     self->next = next;
     self->index = 0;
     self->node = NULL;
