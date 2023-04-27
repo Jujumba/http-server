@@ -21,6 +21,11 @@
 
 typedef struct sockaddr     SA;
 typedef struct sockaddr_in  SAI;
+typedef struct {
+    SAI address;
+    int port;
+    char* path; /* 'localhost:port/PATH'. todo: unused */
+} HttpSocket;
 
 void create_socket();
 
