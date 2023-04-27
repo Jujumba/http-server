@@ -13,6 +13,6 @@ typedef struct iterator {
 } iterator;
 
 iterator* new_iterator(hash_map*);
-const bucket_node* next(iterator* self)
+const bucket_node* next(iterator* self);
 
 #endif //HTTP_SERVER_ITERATOR_H
