@@ -1,7 +1,6 @@
 #include "socket.h"
 
 static void close_socket(int);
-void start(HttpSocket* self);
 
 HttpSocket* create_socket(int port) {
     HttpSocket* httpSocket = malloc(sizeof(HttpSocket));
@@ -14,7 +13,6 @@ HttpSocket* create_socket(int port) {
     httpSocket->address->sin_family = AF_INET;
     httpSocket->address->sin_port = htons(httpSocket->port);
     httpSocket->address->sin_addr.s_addr = htonl(INADDR_ANY);
-    httpSocket->start = start;
     httpSocket->listeners = malloc(sizeof(struct listeners));
     httpSocket->listeners->map_listeners = new_hash_map();
     return httpSocket;
@@ -25,7 +23,7 @@ void put_listener(HttpSocket* socket, char* path, listener_function listener) {
 listener_function get_listener(HttpSocket* socket, char* path) {
     return get(socket->listeners->map_listeners, path);
 }
-static void start(HttpSocket* self) {
+void start(HttpSocket* self) {
     if (bind(self->sfd, (SA *) self->address, self->len) < 0 || listen(self->sfd, BACKLOG) < 0) {
         PANIC("Binding or listening error. Start me later.\n");
     }

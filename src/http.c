@@ -9,7 +9,7 @@ HttpRequest* parse_request(char* request) {
 void free_request(HttpRequest* self) {
     iterator* it = new_iterator(self->headers);
     const bucket_node* pair;
-    while ((pair = it->next(it))) {
+    while ((pair = next(it))) {
         free(pair->value);
     }
     free_map(self->headers);
