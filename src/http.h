@@ -16,7 +16,6 @@ typedef enum {
 typedef struct {
     HttpStatus status;
     char *header, *body;
-    size_t header_len, body_len;
 } HttpResponse;
 typedef struct HttpRequest {
     hash_map* headers;

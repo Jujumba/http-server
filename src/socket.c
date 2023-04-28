@@ -54,8 +54,8 @@ static void start(HttpSocket* self) {
         }
         // todo: unused
         res = response_function(req);
-        write(connfd, res->header, res->header_len);
-        write(connfd, res->body, res->body_len);
+        write(connfd, res->header, strlen(res->header));
+        write(connfd, res->body, strlen(res->body));
         free_request(req);
         close(connfd);
     }
