@@ -56,6 +56,7 @@ static void start(HttpSocket* self) {
         res = response_function(req);
         write(connfd, res->header, res->header_len);
         write(connfd, res->body, res->body_len);
+        free_request(req);
         close(connfd);
     }
 }
