@@ -19,7 +19,6 @@ typedef struct {
     size_t header_len, body_len;
 } HttpResponse;
 typedef struct HttpRequest {
-    HttpStatus status;
     hash_map* headers;
 } HttpRequest;
 
