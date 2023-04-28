@@ -26,12 +26,6 @@ HttpSocket* create_socket(int port) {
     all_sockets[all_sockets_head++] = httpSocket;
     return httpSocket;
 }
-void put_listener(HttpSocket* socket, char* path, listener_function listener) {
-    put(socket->listeners->map_listeners, path, listener);
-}
-listener_function get_listener(HttpSocket* socket, char* path) {
-    return get(socket->listeners->map_listeners, path);
-}
 int start(HttpSocket* self) {
     if (bind(self->sfd, (SA *) self->address, self->len) < 0 || listen(self->sfd, BACKLOG) < 0) {
         ELOG("Binding or listening error. Start me later.\n");
