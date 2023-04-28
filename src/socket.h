@@ -1,9 +1,9 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+/* Maybe it's worth not to hard code socket's backlog? */
 #define BACKLOG 10
 #define BUFFSZ  4096
-#define PORT    8888
 
 #include <stdio.h>
 #include <sys/socket.h>
@@ -21,12 +21,14 @@
 
 typedef struct sockaddr     SA;
 typedef struct sockaddr_in  SAI;
-typedef struct {
-    SAI address;
-    int port;
-    char* path; /* 'localhost:port/PATH'. todo: unused */
+typedef struct HttpSocket {
+    SAI* address;
+    int port, sfd;
+    socklen_t len;
+    void (*start)(struct HttpSocket* self);
+    hash_map* listeners; /* char* - http path, like / or /home_videos : res_function - function handling a response to that address. todo: RENAME */
 } HttpSocket;
-
-void create_socket();
+typedef HttpResponse* (*res_function)(HttpRequest*);
+HttpSocket* create_socket(int port);
 
 #endif // SOCKET_H

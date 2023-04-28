@@ -18,6 +18,11 @@ typedef struct {
     char *header, *body;
     size_t header_len, body_len;
 } HttpResponse;
+typedef struct {
+    HttpStatus status;
+    char* req;
+    hash_map* map; /* char* : char* . todo: unused */
+} HttpRequest;
 
 HttpResponse* construct_response(HttpStatus status, hash_map* headers, char* file_name);
 char* match_status_code(HttpStatus status);
