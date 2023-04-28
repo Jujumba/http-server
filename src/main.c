@@ -1,6 +1,7 @@
 #include "socket.h" 
 
 int main() {
-    create_socket();
+    HttpSocket* socket = create_socket(8888);
+    socket->start(socket);
     return 0;
 }
