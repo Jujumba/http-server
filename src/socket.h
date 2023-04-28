@@ -35,11 +35,10 @@ typedef HttpResponse* (*handler)(HttpRequest*);
 HttpSocket* create_socket(int port);
 void close_socket(HttpSocket* self);
 int start(HttpSocket* self);
-
-inline void put_listener(HttpSocket* socket, char* path, handler handler) {
+static inline void put_listener(HttpSocket* socket, char* path, handler handler) {
     put(socket->listeners->map_listeners, path, handler);
 }
-inline handler get_listener(HttpSocket* socket, char* path) {
+static inline handler get_listener(HttpSocket* socket, char* path) {
     return get(socket->listeners->map_listeners, path);
 }
 
