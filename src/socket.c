@@ -1,6 +1,7 @@
 #include "socket.h"
 
 static void close_sockets(int);
+static SAI* get_raw_socket(int);
 
 static HttpSocket* all_sockets[255]; // temporary
 static int all_sockets_head = 0;
@@ -13,12 +14,9 @@ HttpSocket* create_socket(int port) {
     }
     HttpSocket* httpSocket = malloc(sizeof(HttpSocket));
     httpSocket->sfd = sfd;
-    httpSocket->address = calloc(1, sizeof(SAI));
-    httpSocket->len = sizeof(*httpSocket->address);
     httpSocket->port = port;
-    httpSocket->address->sin_family = AF_INET;
-    httpSocket->address->sin_port = htons(httpSocket->port);
-    httpSocket->address->sin_addr.s_addr = htonl(INADDR_ANY);
+    httpSocket->address = get_raw_socket(httpSocket->port);
+    httpSocket->len = sizeof(*httpSocket->address);
     httpSocket->listeners = malloc(sizeof(struct listeners_map));
     httpSocket->listeners->map_listeners = new_hash_map();
 
@@ -78,4 +76,11 @@ static void close_sockets(int) {
         close_socket(all_sockets[i]);
     }
     exit(0);
+}
+static SAI* get_raw_socket(int port) {
+    SAI* sai = malloc(sizeof (SAI));
+    sai->sin_family = AF_INET;
+    sai->sin_port = htons(port);
+    sai->sin_addr.s_addr = htonl(INADDR_ANY);
+    return sai;
 }
