@@ -21,25 +21,25 @@
 
 typedef struct sockaddr     SA;
 typedef struct sockaddr_in  SAI;
-typedef struct listeners {
+typedef struct listeners_map {
     hash_map* map_listeners;
-} listeners;
+} listeners_map;
 typedef struct HttpSocket {
     SAI* address;
     int port, sfd;
     socklen_t len;
-    listeners* listeners;
+    listeners_map* listeners;
 } HttpSocket;
-typedef HttpResponse* (*listener_function)(HttpRequest*);
+typedef HttpResponse* (*handler)(HttpRequest*);
 
 HttpSocket* create_socket(int port);
 void close_socket(HttpSocket* self);
 int start(HttpSocket* self);
 
-inline void put_listener(HttpSocket* socket, char* path, listener_function listener) {
-    put(socket->listeners->map_listeners, path, listener);
+inline void put_listener(HttpSocket* socket, char* path, handler handler) {
+    put(socket->listeners->map_listeners, path, handler);
 }
-inline listener_function get_listener(HttpSocket* socket, char* path) {
+inline handler get_listener(HttpSocket* socket, char* path) {
     return get(socket->listeners->map_listeners, path);
 }
 

@@ -19,7 +19,7 @@ HttpSocket* create_socket(int port) {
     httpSocket->address->sin_family = AF_INET;
     httpSocket->address->sin_port = htons(httpSocket->port);
     httpSocket->address->sin_addr.s_addr = htonl(INADDR_ANY);
-    httpSocket->listeners = malloc(sizeof(struct listeners));
+    httpSocket->listeners = malloc(sizeof(struct listeners_map));
     httpSocket->listeners->map_listeners = new_hash_map();
 
     /* Pushing socket to stack */
@@ -47,15 +47,15 @@ int start(HttpSocket* self) {
         }
         HttpRequest* req = parse_request(req_buff); // Assuming that full request fits into `req_buff`
         HttpResponse* res;
-        listener_function response_function;
+        handler handler_function;
         char* path = get(req->headers, "path");
-        if ((response_function = get_listener(self, path)) == NULL) {
+        if ((handler_function = get_listener(self, path)) == NULL) {
             // todo: return 404
             free_request(req);
             close(connfd);
             continue;
         }
-        res = response_function(req);
+        res = handler_function(req);
         write(connfd, res->header, strlen(res->header));
         write(connfd, res->body, strlen(res->body));
         free_request(req);
