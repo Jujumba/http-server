@@ -18,10 +18,12 @@ typedef struct {
     char *header, *body;
     size_t header_len, body_len;
 } HttpResponse;
-typedef struct {
+typedef struct HttpRequest {
     HttpStatus status;
     char* req;
-    hash_map* map; /* char* : char* . todo: unused */
+    hash_map* map;
 } HttpRequest;
+
+void free_request(struct HttpRequest* self);
 
 #endif //HTTP_SERVER_HTTP_H
