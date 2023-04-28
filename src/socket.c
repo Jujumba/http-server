@@ -36,7 +36,17 @@ static void start(HttpSocket* self) {
             r += n;
             if (req_buff[r - 1] == '\n') break;
         }
-        write(connfd, req_buff, r); // todo: it only echoes with invalid response for now
+        HttpRequest* req = parse_request(req_buff); // Assuming that full request fits into `req_buff`
+        HttpResponse* res;
+        res_function response_function;
+        if ((response_function = get(self->listeners, get(req->headers, "path"))) == NULL) {
+            // todo: return 404
+            close(connfd);
+            continue;
+        } else {
+            // todo: unused
+            res = response_function(req);
+        }
         close(connfd);
     }
 }
