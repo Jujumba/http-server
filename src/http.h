@@ -24,7 +24,4 @@ typedef struct {
     hash_map* map; /* char* : char* . todo: unused */
 } HttpRequest;
 
-HttpResponse* construct_response(HttpStatus status, hash_map* headers, char* file_name);
-char* match_status_code(HttpStatus status);
-
 #endif //HTTP_SERVER_HTTP_H
