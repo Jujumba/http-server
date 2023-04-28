@@ -19,8 +19,7 @@ typedef struct {
 } HttpResponse;
 typedef struct HttpRequest {
     HttpStatus status;
-    char* req;
-    hash_map* map;
+    hash_map* headers;
 } HttpRequest;
 
 void free_request(struct HttpRequest* self);
