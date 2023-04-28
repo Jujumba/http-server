@@ -5,6 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-hash_map* parse_request(char* request);
+hash_map* parse_request_to_map(char* request);
 
 #endif //HTTP_SERVER_PARSER_H

@@ -1,6 +1,6 @@
 #include "parser.h"
 
-hash_map* parse_request(char* request) {
+hash_map* parse_request_to_map(char* request) {
     hash_map* map = new_hash_map();
 
     size_t req_len = strlen(request);
