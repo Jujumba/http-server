@@ -15,8 +15,15 @@ HttpSocket* create_socket(int port) {
     httpSocket->address->sin_port = htons(httpSocket->port);
     httpSocket->address->sin_addr.s_addr = htonl(INADDR_ANY);
     httpSocket->start = start;
-    httpSocket->listeners = NULL;
+    httpSocket->listeners = malloc(sizeof(struct listeners));
+    httpSocket->listeners->map_listeners = new_hash_map();
     return httpSocket;
+}
+void put_listener(HttpSocket* socket, char* path, listener_function listener) {
+    put(socket->listeners->map_listeners, path, listener);
+}
+listener_function get_listener(HttpSocket* socket, char* path) {
+    return get(socket->listeners->map_listeners, path);
 }
 static void start(HttpSocket* self) {
     if (bind(self->sfd, (SA *) self->address, self->len) < 0 || listen(self->sfd, BACKLOG) < 0) {
@@ -38,15 +45,17 @@ static void start(HttpSocket* self) {
         }
         HttpRequest* req = parse_request(req_buff); // Assuming that full request fits into `req_buff`
         HttpResponse* res;
-        res_function response_function;
-        if ((response_function = get(self->listeners, get(req->headers, "path"))) == NULL) {
+        listener_function response_function;
+        char* path = get(req->headers, "path");
+        if ((response_function = get_listener(self, path)) == NULL) {
             // todo: return 404
             close(connfd);
             continue;
-        } else {
-            // todo: unused
-            res = response_function(req);
         }
+        // todo: unused
+        res = response_function(req);
+        write(connfd, res->header, res->header_len);
+        write(connfd, res->body, res->body_len);
         close(connfd);
     }
 }

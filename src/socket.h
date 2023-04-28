@@ -21,14 +21,18 @@
 
 typedef struct sockaddr     SA;
 typedef struct sockaddr_in  SAI;
+typedef struct listeners {
+    hash_map* map_listeners;
+} listeners;
 typedef struct HttpSocket {
     SAI* address;
     int port, sfd;
     socklen_t len;
     void (*start)(struct HttpSocket* self);
-    hash_map* listeners; /* char* - http path, like / or /home_videos : res_function - function handling a response to that address. todo: RENAME */
+    listeners* listeners;
 } HttpSocket;
-typedef HttpResponse* (*res_function)(HttpRequest*);
+typedef HttpResponse* (*listener_function)(HttpRequest*);
 HttpSocket* create_socket(int port);
-
+void put_listener(HttpSocket* socket, char* path, listener_function listener);
+listener_function get_listener(HttpSocket* socket, char* path);
 #endif // SOCKET_H
