@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <sys/stat.h>
 #include "misc/iterator.h"
+#include "parser.h"
 #include "misc/map.h"
 
 typedef enum {
@@ -22,6 +23,7 @@ typedef struct HttpRequest {
     hash_map* headers;
 } HttpRequest;
 
+HttpRequest* parse_request(char* request);
 void free_request(struct HttpRequest* self);
 
 #endif //HTTP_SERVER_HTTP_H
