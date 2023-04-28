@@ -41,7 +41,7 @@ hash_map* parse_request_to_map(char* request) {
     while (head < req_len) {
         char* key = NULL;
         size_t key_len = 0;
-        while ((c = request[head++]) != ':') {
+        while ((c = request[head++]) != ':' && head < req_len) {
             key = realloc(key, key_len + 1);
             key[key_len++] = c;
         }
@@ -52,7 +52,7 @@ hash_map* parse_request_to_map(char* request) {
 
         char* value = NULL;
         size_t value_len = 0;
-        while ((c = request[head++]) != '\r') {
+        while ((c = request[head++]) != '\r' && head < req_len) {
             value = realloc(value, value_len + 1);
             value[value_len++] = c;
         }
