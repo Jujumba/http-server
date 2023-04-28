@@ -32,7 +32,8 @@ typedef struct HttpSocket {
 } HttpSocket;
 typedef HttpResponse* (*listener_function)(HttpRequest*);
 HttpSocket* create_socket(int port);
+void close_socket(HttpSocket* self);
 void put_listener(HttpSocket* socket, char* path, listener_function listener);
 listener_function get_listener(HttpSocket* socket, char* path);
-void start(HttpSocket* self);
+int start(HttpSocket* self);
 #endif // SOCKET_H
