@@ -60,7 +60,7 @@ hash_map* parse_request(char* request) {
         value[value_len] = '\0';
 
         put(map, key, value);
-
+        free(key);
         head++;
     }
 
