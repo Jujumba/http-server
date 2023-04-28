@@ -28,11 +28,11 @@ typedef struct HttpSocket {
     SAI* address;
     int port, sfd;
     socklen_t len;
-    void (*start)(struct HttpSocket* self);
     listeners* listeners;
 } HttpSocket;
 typedef HttpResponse* (*listener_function)(HttpRequest*);
 HttpSocket* create_socket(int port);
 void put_listener(HttpSocket* socket, char* path, listener_function listener);
 listener_function get_listener(HttpSocket* socket, char* path);
+void start(HttpSocket* self);
 #endif // SOCKET_H

@@ -1,7 +1,7 @@
 #include "socket.h"
 
 static void close_socket(int);
-static void start(HttpSocket* self);
+void start(HttpSocket* self);
 
 HttpSocket* create_socket(int port) {
     HttpSocket* httpSocket = malloc(sizeof(HttpSocket));
@@ -38,7 +38,6 @@ static void start(HttpSocket* self) {
             continue;
         }
         size_t n, r = 0;
-        //todo: parse http request properly
         while ((n = read(connfd, req_buff, BUFFSZ)) > 0) {
             r += n;
             if (req_buff[r - 1] == '\n') break;
@@ -52,7 +51,6 @@ static void start(HttpSocket* self) {
             close(connfd);
             continue;
         }
-        // todo: unused
         res = response_function(req);
         write(connfd, res->header, strlen(res->header));
         write(connfd, res->body, strlen(res->body));

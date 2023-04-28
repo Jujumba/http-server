@@ -10,6 +10,6 @@ HttpResponse* sample(HttpRequest*) {
 int main() {
     HttpSocket* socket = create_socket(8888);
     put_listener(socket, "/", sample);
-    socket->start(socket);
+    start(socket);
     return 0;
 }
